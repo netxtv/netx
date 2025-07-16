@@ -1,0 +1,9 @@
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:4
+#EXT-X-MEDIA-SEQUENCE:0
+#EXTINF:4.000000,
+https://xyssatu.pages.dev/event/10002804260.ts
+#EXTINF:1.533333,
+https://xyssatu.pages.dev/event/10002804261.ts
+#EXT-X-ENDLIST

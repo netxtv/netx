@@ -1,0 +1,17 @@
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:3
+#EXT-X-MEDIA-SEQUENCE:0
+#EXTINF:3.000000,
+https://xyssatu.pages.dev/event/segera0.ts
+#EXTINF:3.000000,
+https://xyssatu.pages.dev/event/segera1.ts
+#EXTINF:3.000000,
+https://xyssatu.pages.dev/event/segera2.ts
+#EXTINF:3.000000,
+https://xyssatu.pages.dev/event/segera3.ts
+#EXTINF:3.000000,
+https://xyssatu.pages.dev/event/segera4.ts
+#EXTINF:0.300000,
+https://xyssatu.pages.dev/event/segera5.ts
+#EXT-X-ENDLIST
