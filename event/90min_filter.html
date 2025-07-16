@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Live Streaming Sepak Bola</title>
+ <link rel="stylesheet" href="https://xyssatu.pages.dev/event/style.css" crossorigin="anonymous"/>
+   
+    
+    <style>
+        /* CSS tetap sama seperti sebelumnya */
+        .match {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            position: relative;
+        }
+        .team {
+            display: inline-block;
+            text-align: center;
+            margin: 0 20px;
+        }
+        .team-logo {
+            width: 50px;
+            height: 50px;
+        }
+        .vs {
+            display: inline-block;
+            font-size: 20px;
+            margin: 0 20px;
+        }
+        .watch-now {
+            display: inline-block; /* Ubah ke inline-block agar tombol sejajar */
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px; /* Jarak antar tombol */
+        }
+        .match-time {
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            margin-top: 5px;
+        }
+        .league-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .live-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        .score {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .stream-buttons {
+            display: flex;
+            flex-direction: row; /* Ubah ke row agar tombol sejajar ke samping */
+            gap: 10px; /* Jarak antar tombol */
+            margin-top: 10px;
+            flex-wrap: wrap; /* Jika tombol terlalu banyak, akan dipindahkan ke baris baru */
+        }
+          /* Styling untuk modal popup */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 250px;
+            margin: 50px auto;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .channel-list {
+            margin-top: 15px;
+        }
+
+        .channel-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .server-link {
+            display: block;
+            margin-top: 5px;
+            padding: 5px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Live Streaming Sepak Bola</h1>
+    </header>
+    
+   
+    <div class="wrapper" id="matches">
+        <!-- Pertandingan akan dimuat di sini -->
+    </div>
+
+    <!-- Modal Popup -->
+    <div class="modal" id="streamModal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3>Pilih Channel Streaming</h3>
+            <div class="channel-list" id="channelList"></div>
+        </div>
+    </div>
+
+   <script>
+     
+     
+        // Fungsi untuk mendapatkan tanggal hari ini dalam format YYYY-MM-DD
+        function getTodayDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Fungsi konversi waktu ke WIB
+        function convertToWIB(unixTimestamp) {
+            const date = new Date(unixTimestamp * 1000);
+            const options = {
+                timeZone: 'Asia/Jakarta',
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return date.toLocaleString('id-ID', options);
+        }
+
+        // Fungsi ambil semua URL streaming beserta nama channel
+        async function getStreamingChannels(matchId) {
+            try {
+                const response = await fetch(`https://api.90min.to/v1/match/channels?matchId=${matchId}`);
+                const data = await response.json();
+                if (data.status && data.result.length > 0) {
+                    return data.result;
+                }
+            } catch (error) {
+                console.error('Gagal mengambil URL streaming:', error);
+            }
+            return [];
+        }
+
+        // Fungsi untuk menggabungkan URL streaming dengan player
+        function getPlayerUrl(streamUrl) {
+            const encodedUrl = btoa(streamUrl); // Encode URL dengan base64
+            return `https://vidio2.pages.dev/?id=https://ezembed.me/e/player?url=${encodedUrl}`;
+        }
+
+        // Fungsi untuk menampilkan modal dengan daftar channel streaming
+        function showModal(channels) {
+            const modal = document.getElementById('streamModal');
+            const channelList = document.getElementById('channelList');
+            
+            // Bersihkan konten sebelumnya
+            channelList.innerHTML = '';
+
+            // Isi dengan channel baru
+            channels.forEach(channel => {
+                const channelDiv = document.createElement('div');
+                channelDiv.className = 'channel-item';
+                channelDiv.innerHTML = `<strong>${channel.name}</strong>`;
+                
+                channel.streaming_urls.forEach((url, index) => {
+                    const link = document.createElement('a');
+                    link.className = 'server-link';
+                    link.href = getPlayerUrl(url); // Gunakan fungsi getPlayerUrl yang sudah dimodifikasi
+                    link.target = '_blank';
+                    link.textContent = `Server ${index + 1}`;
+                    channelDiv.appendChild(link);
+                });
+                
+                channelList.appendChild(channelDiv);
+            });
+
+            // Tampilkan modal
+            modal.style.display = 'block';
+        }
+
+        // Fungsi untuk menyembunyikan modal
+        function hideModal() {
+            document.getElementById('streamModal').style.display = 'none';
+        }
+
+        // Event listener untuk modal
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('streamModal');
+            if (e.target === modal || e.target.classList.contains('close-btn')) {
+                hideModal();
+            }
+        });
+
+        // Fungsi untuk mengambil dan menampilkan pertandingan
+        async function fetchMatches() {
+            const todayDate = getTodayDate();
+            const apiUrl = `https://api.90min.to/v1/match/list?date=${todayDate}&timezone=Asia/Jakarta`;
+
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            const matches = data.result;
+
+            // Filter pertandingan
+            const liveMatches = matches.filter(match => 
+        match.has_live && 
+        match.is_live && 
+        !match.is_end &&
+        match.ts_competition_id === "56ypq3nhz53md7o" // Filter ID kompetisi
+    );
+
+    const scheduledMatches = matches.filter(match => 
+        match.has_live && 
+        !match.is_live && 
+        !match.is_end && 
+        match.is_scheduled &&
+        match.ts_competition_id === "56ypq3nhz53md7o" // Filter ID kompetisi
+    );
+
+            // Gabungkan dan urutkan
+            const allMatches = [
+                ...liveMatches.sort((a, b) => a.match_time - b.match_time),
+                ...scheduledMatches.sort((a, b) => a.match_time - b.match_time)
+            ];
+
+            const matchesContainer = document.getElementById('matches');
+
+            for (const match of allMatches) {
+                const matchElement = document.createElement('section');
+                matchElement.className = 'matches';
+
+                const matchDiv = document.createElement('div');
+                matchDiv.className = 'match';
+
+                // Nama liga
+                const leagueDiv = document.createElement('div');
+                leagueDiv.className = 'league-name';
+                leagueDiv.textContent = match.competition.name;
+                matchDiv.appendChild(leagueDiv);
+
+                // Waktu pertandingan
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'match-time';
+                timeDiv.textContent = match.is_live ? 
+                    `${match.time}'` : 
+                    convertToWIB(match.match_time);
+                matchDiv.appendChild(timeDiv);
+
+                // Indikator LIVE
+                if (match.is_live) {
+                    const liveBadge = document.createElement('div');
+                    liveBadge.className = 'live-indicator';
+                    liveBadge.textContent = 'LIVE';
+                    matchDiv.appendChild(liveBadge);
+                }
+
+                // Team vs Team
+                const teamsDiv = document.createElement('div');
+                teamsDiv.className = 'teams';
+
+                // Home Team
+                const homeTeamDiv = document.createElement('div');
+                homeTeamDiv.className = 'team';
+                const homeLogo = document.createElement('img');
+                homeLogo.className = 'team-logo';
+                homeLogo.src = match.home_team.logo;
+                homeLogo.alt = match.home_team.name;
+                const homeName = document.createElement('p');
+                homeName.textContent = match.home_team.name;
+                homeTeamDiv.append(homeLogo, homeName);
+
+                // VS
+                const vsDiv = document.createElement('p');
+                vsDiv.className = 'vs';
+                vsDiv.textContent = 'VS';
+
+                // Away Team
+                const awayTeamDiv = document.createElement('div');
+                awayTeamDiv.className = 'team';
+                const awayLogo = document.createElement('img');
+                awayLogo.className = 'team-logo';
+                awayLogo.src = match.away_team.logo;
+                awayLogo.alt = match.away_team.name;
+                const awayName = document.createElement('p');
+                awayName.textContent = match.away_team.name;
+                awayTeamDiv.append(awayLogo, awayName);
+
+                teamsDiv.append(homeTeamDiv, vsDiv, awayTeamDiv);
+                matchDiv.appendChild(teamsDiv);
+
+                // Tampilkan skor jika live
+                if (match.is_live) {
+                    const scoreDiv = document.createElement('div');
+                    scoreDiv.className = 'score';
+                    scoreDiv.textContent = `${match.home_scores[0]} - ${match.away_scores[0]}`;
+                    matchDiv.appendChild(scoreDiv);
+                }
+
+                // Ambil semua channel streaming
+                const streamingChannels = await getStreamingChannels(match.ts_id);
+
+                // Buat container untuk tombol streaming
+                const streamButtonsDiv = document.createElement('div');
+                streamButtonsDiv.className = 'stream-buttons';
+
+                // Buat tombol utama "WATCH NOW!"
+                const mainWatchBtn = document.createElement('button');
+                mainWatchBtn.className = 'watch-now';
+                mainWatchBtn.textContent = 'WATCH NOW!';
+                
+                mainWatchBtn.addEventListener('click', async () => {
+                    // Tampilkan loading state
+                    mainWatchBtn.textContent = 'Loading...';
+                    mainWatchBtn.disabled = true;
+
+                    // Ambil data channel
+                    const streamingChannels = await getStreamingChannels(match.ts_id);
+                    
+                    // Kembalikan ke state normal
+                    mainWatchBtn.textContent = 'WATCH NOW!';
+                    mainWatchBtn.disabled = false;
+
+                    // Tampilkan modal jika ada channel
+                    if (streamingChannels.length > 0) {
+                        showModal(streamingChannels);
+                    } else {
+                        alert('Tidak ada stream yang tersedia');
+                    }
+                });
+
+                matchDiv.appendChild(mainWatchBtn);
+                matchElement.appendChild(matchDiv);
+                matchesContainer.appendChild(matchElement);
+            }
+        }
+
+        fetchMatches();
+   </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Live Streaming Sepak Bola</title>
+ <link rel="stylesheet" href="https://xyssatu.pages.dev/event/style.css" crossorigin="anonymous"/>
+      <script type='text/javascript' src='//pl25843026.effectiveratecpm.com/17/09/34/1709348cf3ac29d4d46c686b7cefe6b3.js'></script>
+    
+    <style>
+        /* CSS tetap sama seperti sebelumnya */
+        .match {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            position: relative;
+        }
+        .team {
+            display: inline-block;
+            text-align: center;
+            margin: 0 20px;
+        }
+        .team-logo {
+            width: 50px;
+            height: 50px;
+        }
+        .vs {
+            display: inline-block;
+            font-size: 20px;
+            margin: 0 20px;
+        }
+        .watch-now {
+            display: inline-block; /* Ubah ke inline-block agar tombol sejajar */
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px; /* Jarak antar tombol */
+        }
+        .match-time {
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            margin-top: 5px;
+        }
+        .league-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .live-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        .score {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .stream-buttons {
+            display: flex;
+            flex-direction: row; /* Ubah ke row agar tombol sejajar ke samping */
+            gap: 10px; /* Jarak antar tombol */
+            margin-top: 10px;
+            flex-wrap: wrap; /* Jika tombol terlalu banyak, akan dipindahkan ke baris baru */
+        }
+          /* Styling untuk modal popup */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 250px;
+            margin: 50px auto;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .channel-list {
+            margin-top: 15px;
+        }
+
+        .channel-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .server-link {
+            display: block;
+            margin-top: 5px;
+            padding: 5px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Live Streaming Sepak Bola</h1>
+    </header>
+    
+   
+    <div class="wrapper" id="matches">
+        <!-- Pertandingan akan dimuat di sini -->
+    </div>
+
+    <!-- Modal Popup -->
+    <div class="modal" id="streamModal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3>Pilih SERVER 2 </h3>
+            <div class="channel-list" id="channelList"></div>
+        </div>
+    </div>
+
+   <script src='https://shaka.02anutv.workers.dev/xplay/player.js' > </script>
+ <script type='text/javascript' src='//pl25937314.effectiveratecpm.com/e8/62/93/e8629332cc487f12435a0e25837a63aa.js'></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Streaming Bola - sportX</title>
+<link rel='stylesheet' href='https://xyssatu.pages.dev/event/styIe.css' crossorigin='anonymous'/>
+<script type='text/javascript' src='//pl25843026.profitableratecpm.com/17/09/34/1709348cf3ac29d4d46c686b7cefe6b3.js'></script>
+
+</head>
+<body>
+    <div class="container">
+        <h2>PIALA PRESIDEN</h2>
+        <div class="match-container" id="matches">
+            <div class="loading">Sabar......</div>
+        </div>
+    </div>
+
+    <script>
+      function formatWaktu(timestamp) {
+            const date = new Date(timestamp);
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'Asia/Jakarta'
+            };
+            return date.toLocaleDateString('id-ID', options);
+        }
+
+           function hitungMenitPertandingan(startTime_t, state) {
+            const waktuMulai = new Date(startTime_t).getTime(); // Waktu mulai pertandingan
+            const waktuSekarang = new Date().getTime(); // Waktu saat ini
+            const selisihWaktu = waktuSekarang - waktuMulai; // Selisih waktu dalam milidetik
+            let menitBerjalan = Math.floor(selisihWaktu / (1000 * 60)); // Konversi ke menit
+
+              if (state === 3) {
+                menitBerjalan += 45;
+            }
+
+            return menitBerjalan > 0 ? menitBerjalan : 0; // Pastikan tidak negatif
+        }
+
+          fetch('https://dapiab.xdapiym5297.com/api/merge/schedules?lang=4')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Gagal mengambil data');
+        }
+        return response.json();
+    })
+    .then(data => {
+        const matchesContainer = document.getElementById('matches');
+        matchesContainer.innerHTML = '';
+
+        const filteredMatches = data.matchList.filter(match => match.leagueId === 2004);
+
+        if (filteredMatches.length === 0) {
+            matchesContainer.innerHTML = '<div class="error">Jadwal Pertandingan Belum Tersedia, Kembali Lagi nanti! Thank U</div>';
+            return;
+        }
+
+        filteredMatches.forEach((match, index) => {
+            const matchCard = document.createElement('div');
+            matchCard.className = 'match-card';
+
+            const homeLogo = match.homeLogoUrl
+                        .replace('http://zq.win007.com/', 'https://tigoals.pisionpluss6.workers.dev/https://cfcdn.xdapiym5297.com/zqwin007/')
+                        .replace('http://nba.titan007.com', 'https://tigoals.pisionpluss6.workers.dev/https://cfcdn.xdapiym5297.com/nbawin007');
+                    const awayLogo = match.awayLogoUrl
+                        .replace('http://zq.win007.com/', 'https://tigoals.pisionpluss6.workers.dev/https://cfcdn.xdapiym5297.com/zqwin007/')
+                        .replace('http://nba.titan007.com', 'https://tigoals.pisionpluss6.workers.dev/https://cfcdn.xdapiym5297.com/nbawin007');
+
+            let waktuPertandingan = '';
+            let skorInfo = '';
+            let tombolStream = '';
+
+            if (match.state === -1 || match.state === 4) {
+                waktuPertandingan = `<div class="match-time">FT</div>`;
+                skorInfo = `<div class="score">FT : ${match.homeScore} - ${match.awayScore}</div>`;
+            } else if (match.state === 0) {
+                waktuPertandingan = `<div class="match-time">${formatWaktu(match.matchTime_t)}</div>`;
+                tombolStream = `<div class="stream-links">
+                                    <a href="go:uel${index + 1}" class="stream-link" target="_blank">
+                                        WATCH NOW!📺
+                                    </a>
+                                 </div>`;
+            } else if (match.state === 1 || match.state === 2 || match.state === 3) {
+                const menitBerjalan = hitungMenitPertandingan(match.startTime_t, match.state);
+                waktuPertandingan = match.state === 2 
+                    ? `<div class="match-time">HT'</div>` 
+                    : `<div class="match-time">⏰ ${menitBerjalan}'</div>`;
+                skorInfo = `<div class="score">Live : ${match.homeScore} - ${match.awayScore}</div>`;
+                tombolStream = `<div class="stream-links">
+                                    <a href="go:uel${index + 1}" class="stream-link" target="_blank">
+                                        WATCH NOW!📺
+                                    </a>
+                                 </div>`;
+            } else if (match.state === -13) {
+                waktuPertandingan = `<div class="match-time">Tertunda</div>`;
+                skorInfo = `<div class="score">${match.homeScore} - ${match.awayScore}</div>`;
+                tombolStream = `<div class="stream-links">
+                                    <a href="go:uel${index + 1}" class="stream-link" target="_blank">
+                                        WATCH NOW!📺
+                                    </a>
+                                 </div>`;
+            }
+
+            matchCard.innerHTML = `
+                ${waktuPertandingan}
+                <div class="team-info">
+                    <div class="team">
+                        <img src="${homeLogo}" alt="${match.homeName}">
+                        <div>${match.homeName}</div>
+                    </div>
+                    <div class="vs">VS</div>
+                    <div class="team">
+                        <img src="${awayLogo}" alt="${match.awayName}">
+                        <div>${match.awayName}</div>
+                    </div>
+                </div>
+                ${skorInfo}
+                ${tombolStream}
+            `;
+            matchesContainer.appendChild(matchCard);
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        const matchesContainer = document.getElementById('matches');
+        matchesContainer.innerHTML = '<div class="error">Gagal memuat data pertandingan</div>';
+    });
+    </script>
+    
+    <footer> <p>&copy; 2025 sportX</p> </footer>
+    
+</body>
+</html>
